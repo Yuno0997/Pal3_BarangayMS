@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 const UNIV_SUBMIT_ERROR = 'Failed to submit form data...';
 
 // POST API for login

@@ -99,7 +99,8 @@ class Navbar extends Component {
                         const { SessionStore } = this.context.store;
 
                         try {
-                          // await fetch("http://localhost:8080/auth/login/logout", {
+                          const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+                          // await fetch(`${BASE_URL}/auth/login/logout`, {
                           //   method: "POST",
                           //   credentials: "include"
                           // });
