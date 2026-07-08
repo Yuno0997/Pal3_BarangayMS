@@ -1,0 +1,14 @@
+# ===== Backend =====
+Pal3_BarangayMS_Backend/target/
+Pal3_BarangayMS_Backend/.idea/
+Pal3_BarangayMS_Backend/uploads/
+Pal3_BarangayMS_Backend/*.class
+
+# ===== Frontend =====
+Pal3_BarangayMS_Frontend/node_modules/
+Pal3_BarangayMS_Frontend/dist/
+
+# ===== General =====
+*.log
+.DS_Store
+Thumbs.db

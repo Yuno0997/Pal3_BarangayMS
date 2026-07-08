@@ -1,0 +1,190 @@
+/* Mobile */
+@media (max-width: 768px) {
+    .body_container {
+        margin-top: 120px !important;
+        padding: 0 10px;
+    }
+    /* .navbar .navbar-brand .nav_hdr_logo,  */
+    .user_badge, .right_panel,
+    .user_info .user_nm_dt {
+        display: none;
+    }
+
+    .navbar-toggler {
+        margin-right: -15px;
+    }
+
+    .navbar-toggler i {
+        font-size: 25px;
+    }
+    
+    .navbar .navbar-brand img {
+        height: 40px;
+        width: 40px;
+    }
+
+    .navbar .navbar-brand .nav_hdr_logo .hdr_one {
+        font-size: 15px;
+    }
+
+    .navbar .navbar-brand .nav_hdr_logo .hdr_two {
+        font-size: 9px;
+        margin-right: 35px;
+    }
+
+    .dashboard_display_system .left_main_message,
+    .dashboard_display_system .left_main_message i {
+        font-size: 18px;
+    }
+
+    .dashboard_display_system .left_main_message i {
+        font-size: 45px !important;
+    }
+
+    .left_panel .dashboard_notifs span {
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+        text-align: justify;
+    }
+
+    .login_ctr {
+        padding: 0 10px;
+    }
+
+    .login_hdr .main_hdr {
+        font-size: 25px;
+    }
+    
+    .login_btm_links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+
+    .grid_ctr, .dashboard_img_calendar_ctr {
+        padding: 0px 10px;
+    }
+
+    .enrollmentStep_btns {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .enrollmentStep_btns .steps_in_ctr {
+        margin-left: 0;
+    }
+
+    .enrollmentStep_btns .main_btns {
+        display: flex;
+        align-items: center;
+        justify-content: right;
+        width: 100%;
+    }
+
+    .body_container .header {
+        font-size: 25px;
+        width: 290px
+    }
+
+    .body_container .sub_header {
+        font-size: 12px;
+    }
+
+    .is_ack_base_ctr {
+        padding: 40px;
+    }
+
+    .alert-success-box .alert-icon i {
+        margin-left: -15px;
+        font-size: 45px;
+    }
+
+    .alert-title {
+        font-size: 20px;
+        width: 290px;
+        /* text-align: justify; */
+    }
+
+    .ack_pg_show_hide_btn {
+        margin-left: -10px;
+        /* margin-top: 10px; */
+    }
+
+    .ack-page-container {
+        margin-bottom: 15px;
+    }
+
+    .alert-details {
+        font-size: 13px;
+    }
+
+    .inquirypanel_ctr .inquirypanel_hdr .main_hdr {
+        font-size: 25px;
+    }
+
+    .inquirypanel_ctr .inquirypanel_hdr .subheader {
+        padding: 10px;
+    }
+
+    .profile_portlet_header span {
+        font-size: 15px;
+    }
+
+    .profile_body {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .announcement_logs_ctr {
+        padding: 20px;
+    }
+
+    .announcement_logs_header .main_header {
+        font-size: 25px;
+    }
+
+    .announcement_logs_header {
+        margin-bottom: 0;
+    }
+
+    .accordion_ctr,
+    .dashboard_img_aboutcity_ctr  {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+}
+
+/* Tablet */
+@media (min-width: 769) {
+
+    .dashboard_display_system .left_main_message,
+    .dashboard_display_system .left_main_message i {
+        font-size: 20px !important;
+    }
+}
+
+/* Desktop */
+@media (min-width: 1200px) {
+    .navbar {
+        padding: 0 2rem;
+    }
+    .reset_user_form {
+        padding: 50px 50px;
+        margin: 0 30%;
+    }
+}
+
+@media (max-width: 968px) {
+    .reset_user_form {
+        padding: 50px 50px;
+        margin: 0 22%;
+    }
+}
+
+@media (min-width: 768) {
+    .reset_user_form {
+        padding: 50px 50px;
+        margin: 0 15%;
+    }
+}

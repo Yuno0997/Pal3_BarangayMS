@@ -1,0 +1,60 @@
+import DashboardStore from './DashboardStore';
+import LoginStore from './LoginStore';
+import UserStore from './UserStore';
+import StudentEnrollmentStore from './StudentEnrollmentStore';
+import SettingsStore from './SettingsStore';
+import SessionStore from './SessionStore';
+import AdminEnrollmentStore from './AdminEnrollmentStore';
+import UsersStore from './UsersStore';
+import NotificationLogsStore from './NotificationLogsStore';
+import AnnouncementStore from './AnnouncementStore';
+import DocumentStore from './DocumentStore';
+import UserRequestStore from './UserRequestStore';
+import CommunityReportStore from './CommunityReportStore';
+import HouseholdStore from './HouseholdStore';
+import SystemConfigStore from './SystemConfigStore';
+
+
+
+
+
+
+
+
+
+
+
+
+class RootStore {
+  constructor() {
+    this.SystemConfigStore = new SystemConfigStore();
+
+    this.HouseholdStore = new HouseholdStore();
+
+    this.CommunityReportStore = new CommunityReportStore();
+
+    this.UserRequestStore = new UserRequestStore();
+
+    this.DocumentStore = new DocumentStore();
+
+    this.AnnouncementStore = new AnnouncementStore();
+
+    this.NotificationLogsStore = new NotificationLogsStore();
+
+    this.AdminEnrollmentStore = new AdminEnrollmentStore();
+
+    this.SessionStore = new SessionStore();
+
+    this.SettingsStore = new SettingsStore();
+
+    this.StudentEnrollmentStore = new StudentEnrollmentStore();
+
+    this.UserStore = new UserStore();
+    this.DashboardStore = new DashboardStore();
+    this.LoginStore = new LoginStore();
+    this.UsersStore = new UsersStore();
+  }
+}
+
+const rootStore = new RootStore();
+export default rootStore;
