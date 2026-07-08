@@ -1,0 +1,254 @@
+package com.javaguides.bms.service;
+
+import com.javaguides.bms.enums.*;
+import com.javaguides.bms.helper.DateUtil;
+import com.javaguides.bms.helper.StringMessagesUtil;
+import com.javaguides.bms.jdbc.repository.AnnouncementJDBCRepository;
+import com.javaguides.bms.jdbc.repository.LoginJDBCRepository;
+import com.javaguides.bms.jdbc.repository.NotifLogsJDBCRepository;
+import com.javaguides.bms.jdbc.repository.UsersJDBCRepository;
+import com.javaguides.bms.model.AnnouncementModel;
+import com.javaguides.bms.model.LoginCreds;
+import com.javaguides.bms.model.NotifLogsModel;
+import com.javaguides.bms.model.UsersModel;
+import com.javaguides.bms.model.basemodel.SmsModel;
+import com.javaguides.bms.model.requestmodel.EnrollmentRequest;
+import com.javaguides.bms.model.requestmodel.searchrequest.MainSearchRequest;
+import com.javaguides.bms.model.returnmodel.AnnouncementReturnModel;
+import com.javaguides.bms.service.baseservice.BaseServiceImpl;
+import com.javaguides.bms.service.baseservice.EmailService;
+import com.javaguides.bms.service.baseservice.SmsService;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@AllArgsConstructor
+public class AnnouncementServiceImpl extends BaseServiceImpl implements AnnouncementService {
+
+    static final String IS_REQUIRED_SUFFIX = " is required.";
+    static final String ARE_REQUIRED_SUFFIX = " are required.";
+
+    private final AnnouncementJDBCRepository announcementJDBCRepository;
+    private final NotifLogsJDBCRepository notifLogsJDBCRepository;
+    private final LoginJDBCRepository loginJDBCRepository;
+    private final EmailService emailService;
+    private final SmsService smsService;
+    private UsersJDBCRepository usersJDBCRepository;
+
+    @Override
+    public AnnouncementModel validateRequest(EnrollmentRequest requestObj) {
+        AnnouncementModel announcement = new AnnouncementModel(requestObj);
+        return validate(announcement);
+    }
+
+    public AnnouncementModel validate(AnnouncementModel modelObj) {
+        List<String> errorList = new ArrayList<>();
+
+        if (modelObj.getHeader()!=null) {
+            modelObj.setHeader(modelObj.getHeader().trim());
+        }else{
+            errorList.add("Header" + IS_REQUIRED_SUFFIX);
+        }
+
+        if (modelObj.getType()==null) {
+            errorList.add("Type" + IS_REQUIRED_SUFFIX);
+        }else{
+            modelObj.setTypeString(LogsTypeEnum.getDescByKey(modelObj.getType()));
+        }
+
+        if (modelObj.getLocation()!=null) {
+            modelObj.setLocation(modelObj.getLocation().trim().toUpperCase());
+        }
+
+        if (modelObj.getTime()!=null) {
+            modelObj.setTime(modelObj.getTime().trim().toUpperCase());
+        }
+
+        if (modelObj.getDate()!=null) {
+            if (!DateUtil.isPresentOrFuture(modelObj.getDate())) {
+                errorList.add("Please select a valid announcement date.");
+            }else{
+                modelObj.setDateString(DateUtil.getDateStringWithFormat(modelObj.getDate(), DateFormatEnum.DT_FORMAT_5.getPattern()));
+            }
+        }
+
+        if (modelObj.getAlertStatus()==null) {
+            errorList.add("Status" + IS_REQUIRED_SUFFIX);
+        }else{
+            modelObj.setAlertTypeString(AlertStatusEnum.getDesc3ByKey(modelObj.getAlertStatus()));
+        }
+
+        if (modelObj.getIsSmsEmail()==null) {
+            errorList.add("Channel" + IS_REQUIRED_SUFFIX);
+        }else{
+            modelObj.setChannelString(ChannelEnum.getStringByKey(modelObj.getIsSmsEmail()));
+        }
+
+        if (modelObj.getMessage()==null || modelObj.getMessage().isEmpty()) {
+            errorList.add("Message" + IS_REQUIRED_SUFFIX);
+        }
+
+        if (modelObj.getRecipientKeys()!=null && !modelObj.getRecipientKeys().isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (Integer val : modelObj.getRecipientKeys()) {
+                if (!sb.isEmpty()) sb.append(", ");
+                sb.append(ResidentClassificationEnum.getDescByKey(val));
+            }
+            modelObj.setRecipientTypeString(sb.toString());
+
+            if (modelObj.getRecipientKeys().contains(ResidentClassificationEnum.ALL.getKey())) {
+                modelObj.setRecipientKeys(ResidentClassificationEnum.getAllKeys());
+            }
+            createListOfAnnouncementObjPerRecipient(modelObj);
+        }else{
+            errorList.add("Recipients" + ARE_REQUIRED_SUFFIX);
+        }
+
+        if (!errorList.isEmpty()) throwErrorMessages(errorList);
+        return modelObj;
+    }
+
+
+    public void createListOfAnnouncementObjPerRecipient(AnnouncementModel modelObj) {
+        List<UsersModel> users = usersJDBCRepository.findAllUsersByClassificationKeys(modelObj.getRecipientKeys());
+        if (users == null || users.isEmpty()) {
+            modelObj.setAnnouncementModels(Collections.emptyList());
+            throwErrorMessage("No recipient found.");
+            return;
+        }
+
+        String recipientNames = users.stream()
+                .map(UsersModel::getFullNm2)
+                .collect(Collectors.joining(", "));
+        modelObj.setRecipientListString(recipientNames);
+
+        List<String> recipientList = users.stream().map(UsersModel::getFullNm).sorted().toList();
+        modelObj.setRecipientList(recipientList);
+
+        Date createdDt = new Date();
+        String generatedGrpId = UUID.randomUUID().toString().replace("-", "");
+        List<AnnouncementModel> models = users.stream()
+                .map(u -> {
+                    AnnouncementModel m = new AnnouncementModel();
+                    m.setUserId(u.getId());
+                    m.setMobileNo(u.getMobileNo());
+                    m.setEmailAddress(u.getEmailAddress());
+                    m.setRefNo(generateReferenceNumber(ServicesEnum.ADD_ANNOUNCEMENT.getCode()));
+                    m.setGrpId(generatedGrpId);
+                    m.setRecipientNm(u.getFullNm());
+                    m.setHeader(modelObj.getHeader());
+                    m.setIsSmsEmail(modelObj.getIsSmsEmail());
+                    m.setType(modelObj.getType());
+                    m.setAlertStatus(modelObj.getAlertStatus());
+                    m.setMessage(modelObj.getMessage());
+                    m.setCreatedDt(createdDt);
+                    m.setDate(modelObj.getDate());
+                    m.setLocation(modelObj.getLocation());
+                    m.setTime(modelObj.getTime());
+                    return m;
+                })
+                .collect(Collectors.toList());
+
+        modelObj.setAnnouncementModels(models);
+    }
+
+    @Override
+    public AnnouncementReturnModel saveRequest(EnrollmentRequest request) {
+        AnnouncementModel model = new AnnouncementModel(request);
+        validate(model);
+        createListOfAnnouncementObjPerRecipient(model);
+        AnnouncementReturnModel returnModel = new AnnouncementReturnModel(model);
+        List<NotifLogsModel> notifList = new ArrayList<>();
+
+        boolean sendViaEmail = request.getIsSmsEmail()!=null && ChannelEnum.sendViaEmailKeys().contains(request.getIsSmsEmail());
+        boolean sendViaSms = request.getIsSmsEmail()!=null && ChannelEnum.sendViaSmsKeys().contains(request.getIsSmsEmail());
+        String emailHeader = request.getHeader();
+        if (returnModel.getAnnouncementModels()!=null && !returnModel.getAnnouncementModels().isEmpty()) {
+            returnModel.getAnnouncementModels().forEach(modelObj -> {
+
+                StringBuilder finalMsg = new StringBuilder().append(modelObj.getMessage());
+                if (modelObj.getLocation()!=null) {
+                    finalMsg.append("\n\n").append("Location : ").append(modelObj.getLocation());
+                }
+                if (modelObj.getDate()!=null) {
+                    finalMsg.append("\n").append("Date : ").append(DateUtil.getDateStringWithFormat(modelObj.getDate(), DateFormatEnum.DT_FORMAT_5.getPattern()));
+                }
+                if (modelObj.getTime()!=null) {
+                    finalMsg.append("\n").append("Time : ").append(modelObj.getTime());
+                }
+
+                modelObj.setMessage(finalMsg.toString());
+
+                NotifLogsModel notifLogsModel = new NotifLogsModel();
+                notifLogsModel.setRefNo(generateReferenceNumber(null));
+                notifLogsModel.setUserId(modelObj.getUserId());
+                notifLogsModel.setMessage(finalMsg.toString());
+                notifLogsModel.setRecipient(modelObj.getRecipientNm());
+                notifLogsModel.setIsSmsEmail(modelObj.getIsSmsEmail());
+                notifLogsModel.setOtherDetail(emailHeader);
+                notifLogsModel.setMainActionStr(LogsTypeEnum.ANNOUNCEMENT_SMS.getMainAction());
+                notifLogsModel.setSentDt(new Date());
+                notifLogsModel.setType(modelObj.getType());
+                notifLogsModel.setStatus(modelObj.getStatus());
+                notifList.add(notifLogsModel);
+
+                if (sendViaEmail && modelObj.getEmailAddress()!=null) {
+                    emailService.sendSimpleEmailNotif(modelObj.getEmailAddress(),
+                            emailHeader + ": " + AlertStatusEnum.getDesc3ByKey(modelObj.getAlertStatus()) + " Announcement",
+                            finalMsg.toString()
+                    );
+                }
+
+                if (sendViaSms && modelObj.getMobileNo()!=null) {
+                    SmsModel sms = new SmsModel();
+                    sms.setRecipient(modelObj.formattedMobileNo());
+                    sms.setMessage(modelObj.getMessage());
+                    smsService.sendSms(sms);
+                }
+            });
+        }
+
+        announcementJDBCRepository.saveBatch(returnModel.getAnnouncementModels());
+        notifLogsJDBCRepository.saveBatch(notifList);
+
+        assert returnModel.getAnnouncementModels()!=null;
+        boolean isSingle = returnModel.getAnnouncementModels().size() == 1;
+        returnModel.setRefNo(returnModel.getAnnouncementModels().get(0).getRefNo());
+        returnModel.setAckMessage(StringMessagesUtil.formatMsgString(
+                isSingle ? StringMessagesUtil.SENT_SINGLE_SUFFIX : StringMessagesUtil.SENT_MULTIPLE_SUFFIX,
+                isSingle ? StringMessagesUtil.ANNOUNCEMENT : StringMessagesUtil.ANNOUNCEMENTS
+        ));
+        return returnModel;
+    }
+
+    @Override
+    public Page<AnnouncementReturnModel> searchAnnouncement(MainSearchRequest searchRequest, PageRequest pageRequest) {
+        Page<AnnouncementModel> notifLogs = announcementJDBCRepository.searchAnnouncement(searchRequest, pageRequest);
+        return notifLogs.map(AnnouncementReturnModel::new);
+    }
+
+    @Override
+    public Map<String, List<AnnouncementModel>> getAnnouncementListGrouped(Integer roleKey, LoginCreds loginUser) {
+        Map<String, List<AnnouncementModel>> grouped = new HashMap<>();
+
+        if (SystemUserEnum.SYSTEM_USER.getKey().equals(roleKey) && loginUser!=null) {
+            Optional<LoginCreds> loginObj = loginJDBCRepository.getUserById(loginUser.getUserId());
+            if (loginObj.isPresent()) {
+                List<AnnouncementModel> modelObj = announcementJDBCRepository.findAnnouncementByUserIdGrouped(loginObj.get().getUserId());
+                grouped = modelObj.stream()
+                        .collect(Collectors.groupingBy(
+                                a -> DateUtil.getDateStringWithFormat(a.getCreatedDt(), DateFormatEnum.DT_FORMAT_5.getPattern()),
+                                LinkedHashMap::new,
+                                Collectors.toList()
+                        ));
+            }
+        }
+
+        return grouped;
+    }
+}

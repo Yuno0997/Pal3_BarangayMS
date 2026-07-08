@@ -1,0 +1,55 @@
+package com.javaguides.bms.controller;
+
+import com.javaguides.bms.helper.ApiResponseModel;
+import com.javaguides.bms.helper.JwtUtil;
+import com.javaguides.bms.model.LoginCreds;
+import com.javaguides.bms.model.requestmodel.EnrollmentRequest;
+import com.javaguides.bms.model.requestmodel.searchrequest.MainSearchRequest;
+import com.javaguides.bms.service.AnnouncementService;
+import jakarta.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/announcement")
+@AllArgsConstructor
+public class AnnouncementController {
+
+    private AnnouncementService announcementService;
+
+    @PostMapping("/validateRequest")
+    public ApiResponseModel validateRequest(@RequestBody EnrollmentRequest request) {
+        return new ApiResponseModel(announcementService.validateRequest(request));
+    }
+
+    @PostMapping("/saveRequest")
+    public ApiResponseModel saveRequest(@RequestBody EnrollmentRequest requestObj) {
+        return new ApiResponseModel(announcementService.saveRequest(requestObj));
+    }
+
+    @PostMapping("/search")
+    public ApiResponseModel search(@RequestBody MainSearchRequest searchRequest) {
+        return new ApiResponseModel(announcementService.searchAnnouncement(searchRequest, searchRequest.getPageRequest()));
+    }
+
+    @GetMapping("/getAnnouncementListGrouped/{roleKey}")
+    public ApiResponseModel getAnnouncementListGrouped(
+            @PathVariable Integer roleKey,
+            @RequestHeader("Authorization") String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return new ApiResponseModel("Unauthorized");
+        }
+
+        String token = authHeader.substring(7);
+        LoginCreds loginUser;
+
+        try {
+            loginUser = JwtUtil.parseToken(token);
+        } catch (Exception e) {
+            return new ApiResponseModel("Invalid token");
+        }
+
+        return new ApiResponseModel(announcementService.getAnnouncementListGrouped(roleKey, loginUser));
+    }
+}

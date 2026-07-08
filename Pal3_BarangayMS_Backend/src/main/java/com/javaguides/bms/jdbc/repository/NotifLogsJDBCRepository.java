@@ -1,0 +1,18 @@
+package com.javaguides.bms.jdbc.repository;
+
+import com.javaguides.bms.model.NotifLogsModel;
+import com.javaguides.bms.model.requestmodel.searchrequest.MainSearchRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
+import java.util.List;
+
+public interface NotifLogsJDBCRepository {
+    int saveNotifLogs(NotifLogsModel model);
+
+    int saveBatch(List<NotifLogsModel> list);
+
+    List<NotifLogsModel> findRecentResidentLogs(String userId, Integer noOfDisplay);
+
+    Page<NotifLogsModel> searchNotifLogs(MainSearchRequest requestObj, PageRequest page);
+}
