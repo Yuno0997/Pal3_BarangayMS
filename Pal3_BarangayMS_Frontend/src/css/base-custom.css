@@ -997,6 +997,14 @@
   margin-top: 100px;
 }
 
+.inquirytable_ctr > div {
+  overflow-x: hidden !important;
+}
+
+.rdt_Table {
+  overflow: hidden !important;
+}
+
 .rdt_TableHeadRow {
   font-weight: 600;
   margin-top: 10px;

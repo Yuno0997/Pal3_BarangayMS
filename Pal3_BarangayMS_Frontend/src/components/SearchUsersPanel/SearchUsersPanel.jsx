@@ -62,6 +62,7 @@ class SearchUsersPanel extends Component {
       {
         name: 'HOUSEHOLD HEAD?',
         index: 'isHouseholdHeadString',
+        center: true,
       },
       {
         name: 'DATE ENROLLED',
