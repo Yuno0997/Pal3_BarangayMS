@@ -5,12 +5,14 @@ import com.javaguides.bms.enums.SystemConfigEnum;
 import com.javaguides.bms.helper.StringMessagesUtil;
 import com.javaguides.bms.model.basemodel.BaseModel;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
