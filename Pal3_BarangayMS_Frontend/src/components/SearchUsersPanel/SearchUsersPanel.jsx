@@ -44,8 +44,14 @@ class SearchUsersPanel extends Component {
         name: 'NAME',
         index: 'fullNm',
         sortBy: 'lastNm',
+      },
+      {
+        name: 'STATUS',
+        index: 'statusString',
         cell: data => (
-          <BaseColumnWithSubData data={data.fullNm} subData={data.statusString} className={data.status===1 ? 'is_green' : 'is_red'} />
+          <span className={`status_badge ${data.status === 1 ? 'is_green' : 'is_red'}`}>
+            {data.statusString}
+          </span>
         )
       },
       // {
