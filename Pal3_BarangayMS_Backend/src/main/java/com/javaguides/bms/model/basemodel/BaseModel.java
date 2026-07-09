@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 public abstract class BaseModel {
 
+    @Id
     @Column(name = "ID")
     private String id;
 
