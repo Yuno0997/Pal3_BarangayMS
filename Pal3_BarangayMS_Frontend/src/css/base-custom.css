@@ -1151,20 +1151,22 @@
 }
 
 .btn_reset {
-  color: #374151;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  color: #fff;
+  background: #475569;
+  border: none;
   padding: 3px 8px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(71, 85, 105, 0.25);
 }
 
 .btn_reset:hover {
-  background: #e5e7eb;
+  background: #334155;
   transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(71, 85, 105, 0.35);
 }
 
 .is_in_modal {
