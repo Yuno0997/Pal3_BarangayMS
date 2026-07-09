@@ -1070,6 +1070,7 @@
 .actionbtns_ctr button {
   display: flex;
   gap: 3px;
+  white-space: nowrap;
 }
 
 .btn_update {
