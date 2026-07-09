@@ -1094,9 +1094,22 @@
 }
 
 .actionbtns_ctr button {
-  display: flex;
-  gap: 3px;
-  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.actionbtns_ctr button i {
+  color: #fff !important;
+  pointer-events: none;
 }
 
 .btn_update {

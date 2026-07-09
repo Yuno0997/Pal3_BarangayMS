@@ -63,6 +63,11 @@ class SearchUsersPanel extends Component {
         name: 'HOUSEHOLD HEAD?',
         index: 'isHouseholdHeadString',
         center: true,
+        cell: data => (
+          <div style={{ width: '100%', textAlign: 'center' }}>
+            {data.isHouseholdHeadString}
+          </div>
+        )
       },
       {
         name: 'DATE ENROLLED',
@@ -77,27 +82,27 @@ class SearchUsersPanel extends Component {
         index: null,
         cell: data => (
           <div className="actionbtns_ctr">
-            <BaseButton
-              customClassName="btn_reset"
+            <button
+              className="btn_reset"
+              title="Reset Password"
               onClick={() => this.onClickReset(data)}
-              label="Reset"
-              hasIcon
-              icon={<i class="bi bi-arrow-clockwise"></i>}
-            />
-            <BaseButton
-              customClassName="btn_delete"
+            >
+              <i className="bi bi-arrow-clockwise"></i>
+            </button>
+            <button
+              className="btn_delete"
+              title="Delete"
               onClick={() => this.showDeleteModal(data)}
-              label="Delete"
-              hasIcon
-              icon={<i className="bi bi-trash"></i>}
-            />
-            <BaseButton
-              customClassName="btn_update"
+            >
+              <i className="bi bi-trash"></i>
+            </button>
+            <button
+              className="btn_update"
+              title="Update"
               onClick={() => this.updateData(data)}
-              label="Update"
-              hasIcon
-              icon={<i class="bi bi-pencil-square"></i>}
-            />
+            >
+              <i className="bi bi-pencil-square"></i>
+            </button>
           </div>
         )
       }
